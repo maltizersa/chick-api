@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -9,7 +10,34 @@ use PHPMailer\PHPMailer\PHPMailer;
 class APIController extends Controller
 {
     public function hello(){
-        return response()->json(['message' => 'Hello World!']);
+            return response()->json(['message' => 'Hello World!']);
+        }
+
+        // ========== [ LOGIN FUNCTION ] ================
+    public function login(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        // Get user by email
+        $user = DB::table('usersdb')->where('email', $request->email)->first();
+
+        // Check if user exists and password matches
+        if ($user && Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => true,
+                'uid' => $user->uid
+            ]);
+        }
+
+        // Invalid credentials
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid credentials.'
+        ]);
     }
 
     public function verifyEmail(Request $request){
@@ -19,6 +47,16 @@ class APIController extends Controller
             'phone_number' => 'required',
             'password' => 'required',
         ]);
+
+        $users = DB::select("SELECT * FROM usersdb WHERE username = ?",
+            [
+                $request->username
+            ]
+        );
+
+        if(count($users) > 0){
+            return response()->json(['message' => 'Username already exists.', 'exists' => true]);
+        }
 
         $code = rand(100000, 999999);
 
@@ -48,11 +86,11 @@ class APIController extends Controller
                 [
                     $data['username'],
                     $data['email'],
-                    $data['password'],
+                    Hash::make($data['password']),
                     $data['phone_number'],
                 ]
             );
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true ,'password' => Hash::make($data['password'])]);
         }
         catch(\Exception $e){
             return response()->json(['success' => false, 'message' => $e->getMessage()]);

@@ -13,3 +13,5 @@ Route::get('/hello', [APIController::class, 'hello']);
 Route::post('/verifyEmail', [APIController::class, 'verifyEmail']);
 
 Route::post('/register', [APIController::class, 'register']);
+
+Route::post('/login', [APIController::class, 'login']);
