@@ -65,6 +65,49 @@ class APIController extends Controller
         return response()->json(['code' => $code]); 
     }
 
+    public function forgotPassword(Request $request){
+
+        $data = $request->all();
+
+        $users = DB::select(
+            "SELECT * FROM usersdb WHERE email = ?",
+            [
+                $data['email']
+            ]
+        );
+
+        if(count($users) < 1){
+            return response()->json(['success' => false, 'message' => 'Email not found.']);
+        }
+        else{
+
+            $code = rand(100000, 999999);
+
+            $this->sendMail($request->email, $code); 
+
+            return response()->json(['code' => $code, 'success' => true, 'message' => 'Verification code sent to email.']); 
+        }
+
+    }
+
+    public function resetPassword(Request $request){
+        $data = $request->all();
+
+        try{
+            DB::statement(
+                "UPDATE usersdb SET password = ? WHERE email = ?",
+                [
+                    Hash::make($data['password']),
+                    $data['email']
+                ]
+            );
+            return response()->json(['success' => true, 'message' => 'Password reset successfully.']);
+        }
+        catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
     public function register(Request $request){
         $request -> validate([
             'username' => 'required',

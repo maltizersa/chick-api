@@ -7,4 +7,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('email/{email}', [APIController::class, 'sendMail']);
+Route::get('email/{email}', [APIController::class, 'sendMail']);    

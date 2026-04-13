@@ -14,4 +14,8 @@ Route::post('/verifyEmail', [APIController::class, 'verifyEmail']);
 
 Route::post('/register', [APIController::class, 'register']);
 
-Route::post('/login', [APIController::class, 'login']);
+Route::post('/login', [APIController::class, 'login']); 
+
+Route::post('/forgot-password', [APIController::class, 'forgotPassword']);
+
+Route::post('/reset-password', [APIController::class, 'resetPassword']);
