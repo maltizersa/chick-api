@@ -140,6 +140,12 @@ class APIController extends Controller
         }
     }
 
+    public function fetchHotels(){
+        $hotels = DB::select("SELECT * FROM hotelsdb");
+
+        return response()->json(['hotels' => $hotels]);
+    }
+
     // ========== [ Compose Email ] ================
     public function sendMail($email, $code)
     {

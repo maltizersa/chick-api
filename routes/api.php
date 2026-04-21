@@ -19,3 +19,5 @@ Route::post('/login', [APIController::class, 'login']);
 Route::post('/forgot-password', [APIController::class, 'forgotPassword']);
 
 Route::post('/reset-password', [APIController::class, 'resetPassword']);
+
+Route::get('/fetch/hotels', [APIController::class, 'fetchHotels']);
