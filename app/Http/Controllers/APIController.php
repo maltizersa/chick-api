@@ -146,6 +146,16 @@ class APIController extends Controller
         return response()->json(['hotels' => $hotels]);
     }
 
+    public function fetchdetails($id)
+    {   
+        $hotel = DB::table('hotelsdb')->where('id', $id)->first();
+        $reviews = DB::table('reviews')->where('hotel_id', $id)->get();
+
+        return response()->json([
+            'hotel' => $hotel,
+            'reviews' => $reviews
+        ]);
+    }
     // ========== [ Compose Email ] ================
     public function sendMail($email, $code)
     {
