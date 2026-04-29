@@ -29,7 +29,8 @@ class APIController extends Controller
         if ($user && Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => true,
-                'uid' => $user->uid
+                'uid' => $user->uid,
+                'user' => $user,
             ]);
         }
 
@@ -42,20 +43,22 @@ class APIController extends Controller
 
     public function verifyEmail(Request $request){
         $request -> validate([
-            'username' => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            // 'username' => 'required',
             'email' => 'required|email',
             'phone_number' => 'required',
             'password' => 'required',
         ]);
 
-        $users = DB::select("SELECT * FROM usersdb WHERE username = ?",
+        $users = DB::select("SELECT * FROM usersdb WHERE email = ?",
             [
-                $request->username
+                $request->email
             ]
         );
 
         if(count($users) > 0){
-            return response()->json(['message' => 'Username already exists.', 'exists' => true]);
+            return response()->json(['message' => 'Email already exists.', 'exists' => true]);
         }
 
         $code = rand(100000, 999999);
@@ -110,7 +113,9 @@ class APIController extends Controller
 
     public function register(Request $request){
         $request -> validate([
-            'username' => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            // 'username' => 'required',
             'email' => 'required|email',
             'phone_number' => 'required',
             'password' => 'required',
@@ -122,12 +127,14 @@ class APIController extends Controller
             DB::insert(
                 "
                     INSERT INTO usersdb
-                    (username, email, password, phone_number)
+                    (first_name, middle_name, last_name, email, password, phone_number)
                     VALUES
-                    (?, ?, ?, ?)
+                    (?, ?, ?, ?, ?, ?)
                 ",
                 [
-                    $data['username'],
+                    $data['first_name'],
+                    $data['middle_name'],
+                    $data['last_name'],
                     $data['email'],
                     Hash::make($data['password']),
                     $data['phone_number'],

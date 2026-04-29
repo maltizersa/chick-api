@@ -29,6 +29,28 @@ return new class extends Migration
                 )
             "
         );
+
+        DB::insert(
+            "
+                INSERT INTO hotelsdb (
+                    hotel_name,
+                    hotel_address,
+                    hotel_contact,
+                    hotel_image_loc,
+                    hotel_longitude,
+                    hotel_latitude,
+                    status
+                ) VALUES (
+                    'Lipit Sur Inn',
+                    'Lipit Sur, Mangaldan, Pangasinan',
+                    '09123456789',
+                    'storage/lisland.jpg',  
+                    120.515493,
+                    16.059599,
+                    'inn'
+                )
+            "
+        );
     }
 
     /**
