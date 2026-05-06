@@ -24,8 +24,10 @@ return new class extends Migration
                 hotel_image_loc VARCHAR(255) NOT NULL,
                 hotel_longitude DOUBLE NOT NULL,
                 hotel_latitude DOUBLE NOT NULL,
+                owner_id INT NULL,
                 status ENUM('hotel', 'inn') NOT NULL DEFAULT 'hotel',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (owner_id) REFERENCES usersdb(uid)
                 )
             "
         );
