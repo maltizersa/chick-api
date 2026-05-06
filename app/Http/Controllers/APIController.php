@@ -10,8 +10,30 @@ use PHPMailer\PHPMailer\PHPMailer;
 class APIController extends Controller
 {
     public function hello(){
-            return response()->json(['message' => 'Hello World!']);
+        return response()->json(['message' => 'Hello World!']);
+    }
+
+    public function bookHotel(Request $request){
+        $data = $request->all();
+
+        try{
+            DB::insert(
+                "INSERT INTO bookings (id, uid, hotel_id, room_type, check_in, check_out) VALUES (?, ?, ?, ?, ?, ?)",
+                [
+                    $data['id'],
+                    $data['uid'],
+                    $data['hotel_id'],
+                    $data['room_type'],
+                    $data['check_in'],
+                    $data['check_out']
+                ]
+            );
+            return response()->json(['success' => true, 'message' => 'Booking created successfully.']);
         }
+        catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 
         // ========== [ LOGIN FUNCTION ] ================
     public function login(Request $request)
