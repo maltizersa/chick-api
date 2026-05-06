@@ -63,6 +63,16 @@ class APIController extends Controller
         ]);
     }
 
+    public function getBookingDetails($bookingID){
+        $booking = DB::table('bookings')->where('id', $bookingID)->first();
+
+        if($booking){
+            return response()->json(['success' => true, 'booking' => $booking]);
+        }
+        else{
+            return response()->json(['success' => false, 'message' => 'Booking not found.']);
+        }
+    }
     public function verifyEmail(Request $request){
         $request -> validate([
             'first_name' => 'required',
