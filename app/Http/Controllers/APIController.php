@@ -64,10 +64,22 @@ class APIController extends Controller
     }
 
     public function getBookingDetails($bookingID){
-        $booking = DB::table('bookings')->where('id', $bookingID)->first();
+
+        $booking = DB::select(
+            "SELECT 
+                b.*, 
+                h.hotel_name AS hotel_name
+                FROM bookings b
+                JOIN hotelsdb h ON b.hotel_id = h.id
+                WHERE b.id = ?
+            ",
+            [
+                $bookingID,
+            ]
+        );
 
         if($booking){
-            return response()->json(['success' => true, 'booking' => $booking]);
+            return response()->json(['success' => true, 'booking' => $booking[0]]);
         }
         else{
             return response()->json(['success' => false, 'message' => 'Booking not found.']);
