@@ -191,11 +191,41 @@ class APIController extends Controller
         }
     }
 
-    public function fetchHotels(){
-        $hotels = DB::select("SELECT * FROM hotelsdb");
-
-        return response()->json(['hotels' => $hotels]);
-    }
+        public function fetchHotels(){
+            $hotels = DB::select("
+                SELECT 
+                    h.id,
+                    h.hotel_name,
+                    h.hotel_address,
+                    h.hotel_contact,
+                    h.hotel_image_loc,
+                    h.hotel_longitude,
+                    h.hotel_latitude,
+                    h.owner_id,
+                    h.approved,
+                    h.status,
+                    h.created_at,
+                    GROUP_CONCAT(a.name) as amenities
+                FROM hotelsdb h
+                JOIN hotel_amenities ha ON ha.hotel_id = h.id
+                JOIN amenities a ON a.id = ha.amenity_id
+                WHERE h.approved = 1
+                GROUP BY 
+                    h.id,
+                    h.hotel_name,
+                    h.hotel_address,
+                    h.hotel_contact,
+                    h.hotel_image_loc,
+                    h.hotel_longitude,
+                    h.hotel_latitude,
+                    h.owner_id,
+                    h.approved,
+                    h.status,
+                    h.created_at
+            ");
+            // dd($hotels);
+            return response()->json(['hotels' => $hotels]);
+        }
 
     public function fetchdetails($id)
     {   

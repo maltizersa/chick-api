@@ -25,6 +25,7 @@ return new class extends Migration
                 hotel_longitude DOUBLE NOT NULL,
                 hotel_latitude DOUBLE NOT NULL,
                 owner_id INT NULL,
+                approved TINYINT NOT NULL DEFAULT 0,
                 status ENUM('hotel', 'inn') NOT NULL DEFAULT 'hotel',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (owner_id) REFERENCES usersdb(uid)
@@ -41,7 +42,8 @@ return new class extends Migration
                     hotel_image_loc,
                     hotel_longitude,
                     hotel_latitude,
-                    status
+                    status,
+                    approved
                 ) VALUES (
                     'Lipit Sur Inn',
                     'Lipit Sur, Mangaldan, Pangasinan',
@@ -49,7 +51,8 @@ return new class extends Migration
                     'storage/lisland.jpg',  
                     120.515493,
                     16.059599,
-                    'inn'
+                    'inn',
+                    1
                 )
             "
         );

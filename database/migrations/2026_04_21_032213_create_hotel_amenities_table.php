@@ -20,6 +20,22 @@ return new class extends Migration
                 FOREIGN KEY (amenity_id) REFERENCES amenities(id)
             )"
         );
+
+         DB::insert(
+            "
+                INSERT INTO hotel_amenities (
+                   hotel_id,
+                   amenity_id
+                ) VALUES (
+                    (SELECT id FROM hotelsdb LIMIT 1),
+                    2
+                ),
+                (
+                    (SELECT id FROM hotelsdb LIMIT 1),
+                    3
+                )
+            "
+        );
     }
 
     /**
