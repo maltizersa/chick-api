@@ -27,3 +27,5 @@ Route::get('/fetch/hotel/details/{id}', [APIController::class, 'fetchdetails']);
 Route::post('/bookings', [APIController::class, 'bookHotel']);
 
 Route::get('/booking/{bookingID}', [APIController::class, 'getBookingDetails']);
+
+Route::post('/addhotel', [APIController::class, 'addHotel']);

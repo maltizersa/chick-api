@@ -193,7 +193,7 @@ class APIController extends Controller
 
         public function fetchHotels(){
             $hotels = DB::select("
-                SELECT 
+               SELECT 
                     h.id,
                     h.hotel_name,
                     h.hotel_address,
@@ -207,8 +207,8 @@ class APIController extends Controller
                     h.created_at,
                     GROUP_CONCAT(a.name) as amenities
                 FROM hotelsdb h
-                JOIN hotel_amenities ha ON ha.hotel_id = h.id
-                JOIN amenities a ON a.id = ha.amenity_id
+                LEFT JOIN hotel_amenities ha ON ha.hotel_id = h.id
+                LEFT JOIN amenities a ON a.id = ha.amenity_id
                 WHERE h.approved = 1
                 GROUP BY 
                     h.id,
@@ -221,7 +221,7 @@ class APIController extends Controller
                     h.owner_id,
                     h.approved,
                     h.status,
-                    h.created_at
+                    h.created_at;
             ");
             // dd($hotels);
             return response()->json(['hotels' => $hotels]);
@@ -265,6 +265,115 @@ class APIController extends Controller
             // echo 'Message has been sent';
         } catch (\Exception $e) {
             // echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+    }
+
+    public function addHotel(Request $request)
+    {
+        try {
+
+            // ======================
+            // VALIDATION
+            // ======================
+            $request->validate([
+                'name' => 'required',
+                'address' => 'required',
+                'phone' => 'required',
+                'type' => 'required',
+                'latitude' => 'required',
+                'longitude' => 'required',
+                'hotel_image' => 'required|image',
+                'pdf_file' => 'required|mimes:pdf',
+                'ownerid' => 'required|integer',
+                'room_types' => 'nullable'
+            ]);
+
+            // ======================
+            // FILE UPLOADS
+            // ======================
+            $imagePath = $request->file('hotel_image')->store('hotels', 'public');
+            $pdfPath   = $request->file('pdf_file')->store('pdfs', 'public');
+
+            $ownerId = (int) $request->ownerid;
+
+            $type = strtolower(trim($request->type));
+
+            $status = in_array($type, ['hotel', 'inn']) ? $type : 'hotel';
+
+            // ======================
+            // INSERT HOTEL
+            // ======================
+            DB::insert("
+                INSERT INTO hotelsdb (
+                    hotel_name,
+                    hotel_address,
+                    hotel_contact,
+                    hotel_image_loc,
+                    hotel_longitude,
+                    hotel_latitude,
+                    owner_id,
+                    approved,
+                    status,
+                    created_at,
+                    hotel_pdf_loc
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ", [
+                $request->name,
+                $request->address,
+                $request->phone,
+                $imagePath,
+                $request->longitude,
+                $request->latitude,
+                $ownerId,
+                1,
+                $status,
+                now(),
+                $pdfPath
+            ]);
+
+            $hotelId = DB::getPdo()->lastInsertId();
+
+            // ======================
+            // ROOMS
+            // ======================
+            $rooms = json_decode($request->room_types, true) ?? [];
+
+            foreach ($rooms as $index => $room) {
+
+                $roomImagePath = null;
+
+                if ($request->hasFile("room_image_$index")) {
+                    $roomImagePath = $request->file("room_image_$index")
+                        ->store('rooms', 'public');
+                }
+
+                DB::insert("
+                    INSERT INTO hotel_rooms (
+                        hotel_id,
+                        room_name,
+                        price,
+                        image_path
+                    ) VALUES (?, ?, ?, ?)
+                ", [
+                    $hotelId,
+                    $room['name'] ?? '',
+                    $room['price'] ?? 0,
+                    $roomImagePath
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Hotel created successfully',
+                'hotel_id' => $hotelId
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'Server Error',
+                'error' => $e->getMessage(),
+                'line' => $e->getLine()
+            ], 500);
         }
     }
 }

@@ -22,6 +22,7 @@ return new class extends Migration
                 hotel_address VARCHAR(255) NOT NULL,
                 hotel_contact VARCHAR(11) NOT NULL,
                 hotel_image_loc VARCHAR(255) NOT NULL,
+                hotel_pdf_loc VARCHAR(255),
                 hotel_longitude DOUBLE NOT NULL,
                 hotel_latitude DOUBLE NOT NULL,
                 owner_id INT NULL,
