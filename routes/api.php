@@ -29,3 +29,12 @@ Route::post('/bookings', [APIController::class, 'bookHotel']);
 Route::get('/booking/{bookingID}', [APIController::class, 'getBookingDetails']);
 
 Route::post('/addhotel', [APIController::class, 'addHotel']);
+
+Route::get('/fetchroomtypes/{id}', [APIController::class, 'fetchroomtypes']);
+
+Route::get('/fetchmessages/{uid}', [APIController::class, 'fetchMessages']);
+
+Route::get('/fetchchat/{uid}/{otherId}', [APIController::class, 'fetchChat']);
+Route::post('/sendmessage', [APIController::class, 'sendMessage']);
+
+Route::post('/markread', [APIController::class, 'markRead']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Hash;
+use Illuminate\Cache\Repository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -68,7 +69,8 @@ class APIController extends Controller
         $booking = DB::select(
             "SELECT 
                 b.*, 
-                h.hotel_name AS hotel_name
+                h.hotel_name AS hotel_name,
+                (SELECT price FROM hotel_rooms WHERE room_name = b.room_type) AS price
                 FROM bookings b
                 JOIN hotelsdb h ON b.hotel_id = h.id
                 WHERE b.id = ?
@@ -205,7 +207,9 @@ class APIController extends Controller
                     h.approved,
                     h.status,
                     h.created_at,
-                    GROUP_CONCAT(a.name) as amenities
+                    GROUP_CONCAT(a.name) as amenities,
+                    (SELECT MIN(price) FROM hotel_rooms WHERE hotel_id = h.id) AS min_price,
+                    (SELECT MAX(price) FROM hotel_rooms WHERE hotel_id = h.id) AS max_price
                 FROM hotelsdb h
                 LEFT JOIN hotel_amenities ha ON ha.hotel_id = h.id
                 LEFT JOIN amenities a ON a.id = ha.amenity_id
@@ -333,6 +337,18 @@ class APIController extends Controller
 
             $hotelId = DB::getPdo()->lastInsertId();
 
+            $amenities = explode(',', $request->amenities);
+
+            foreach ($amenities as $amenityId) {
+                DB::insert(
+                    "INSERT INTO hotel_amenities (hotel_id, amenity_id) VALUES (?, ?)",
+                    [
+                        $hotelId,
+                        (int) $amenityId
+                    ]
+                );
+            }
+
             // ======================
             // ROOMS
             // ======================
@@ -375,5 +391,95 @@ class APIController extends Controller
                 'line' => $e->getLine()
             ], 500);
         }
+    }
+
+    public function fetchroomtypes($id){
+
+        $roomtypes = DB::select(
+            "SELECT * FROM hotel_rooms WHERE hotel_id = ?",
+            [$id]
+        );
+
+
+        return response()->json([
+            'roomtypes' => $roomtypes
+        ]);
+        
+    }
+
+    public function fetchMessages($uid)
+    {
+        $messages = DB::select("
+            SELECT 
+                u.uid,
+                u.first_name,
+                u.last_name,
+                m.message AS last_message,
+                m.created_at,
+                m.sender_id,
+                m.receiver_id,
+                m.is_read
+            FROM messages m
+            JOIN usersdb u 
+                ON u.uid = 
+                    CASE 
+                        WHEN m.sender_id = ? THEN m.receiver_id
+                        ELSE m.sender_id
+                    END
+            WHERE m.message_id IN (
+                SELECT MAX(message_id)
+                FROM messages
+                WHERE sender_id = ? OR receiver_id = ?
+                GROUP BY 
+                    LEAST(sender_id, receiver_id),
+                    GREATEST(sender_id, receiver_id)
+            )
+            ORDER BY m.created_at DESC
+        ", [$uid, $uid, $uid]);
+
+        return response()->json($messages);
+    }
+
+    public function fetchChat($uid, $otherId)
+    {
+        $messages = DB::table('messages')
+            ->where(function ($q) use ($uid, $otherId) {
+                $q->where('sender_id', $uid)
+                ->where('receiver_id', $otherId);
+            })
+            ->orWhere(function ($q) use ($uid, $otherId) {
+                $q->where('sender_id', $otherId)
+                ->where('receiver_id', $uid);
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json($messages);
+    }
+
+    public function sendMessage(Request $request)
+    {
+        DB::table('messages')->insert([
+            'sender_id' => $request->sender_id,
+            'receiver_id' => $request->receiver_id,
+            'message' => $request->message,
+            'is_read' => 0,
+            // 'created_at' => now()
+        ]);
+
+        return response()->json(['status' => 'sent']);
+    }
+
+    public function markRead(Request $request)
+    {
+        DB::table('messages')
+            ->where('sender_id', $request->sender_id)
+            ->where('receiver_id', $request->receiver_id)
+            ->where('is_read', 0)
+            ->update([
+                'is_read' => 1
+            ]);
+
+        return response()->json(['status' => 'updated']);
     }
 }
