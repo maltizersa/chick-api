@@ -38,3 +38,13 @@ Route::get('/fetchchat/{uid}/{otherId}', [APIController::class, 'fetchChat']);
 Route::post('/sendmessage', [APIController::class, 'sendMessage']);
 
 Route::post('/markread', [APIController::class, 'markRead']);
+
+Route::post('/deleteroom', [APIController::class, 'deleteRoom']);
+
+Route::post('/updatehotel', [APIController::class, 'updateHotel']);
+
+Route::post('/addroom', [APIController::class, 'addRoom']);
+
+Route::get('/my-hotels/{ownerId}', [APIController::class, 'myHotels']);
+Route::get('/my-book/{uid}', [APIController::class, 'myBookings']);
+

@@ -23,10 +23,10 @@ return new class extends Migration
         )"
        );
 
-       DB::insert(
-        "INSERT INTO hotel_rooms (hotel_id, room_name, price) VALUES
-        (1, 'Delux', 562)"
-       );
+    //    DB::insert(
+    //     "INSERT INTO hotel_rooms (hotel_id, room_name, price) VALUES
+    //     (1, 'Delux', 562)"
+    //    );
     }
 
     /**
