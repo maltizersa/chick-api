@@ -235,10 +235,12 @@ class APIController extends Controller
     {   
         $hotel = DB::table('hotelsdb')->where('id', $id)->first();
         $reviews = DB::table('reviews')->where('hotel_id', $id)->get();
-
+        $amenities = DB::table('hotel_amenities')->where('hotel_id', $id)-> get();
+ 
         return response()->json([
             'hotel' => $hotel,
-            'reviews' => $reviews
+            'reviews' => $reviews,
+            'amenities' => $amenities,
         ]);
     }
     // ========== [ Compose Email ] ================
