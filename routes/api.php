@@ -48,3 +48,7 @@ Route::post('/addroom', [APIController::class, 'addRoom']);
 Route::get('/my-hotels/{ownerId}', [APIController::class, 'myHotels']);
 Route::get('/my-book/{uid}', [APIController::class, 'myBookings']);
 
+Route::get('/to-rate/{uid}', [APIController:: class, 'toRate']);
+
+Route::post('rate-hotel', [APIController::class, 'rateHotel']);
+

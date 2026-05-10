@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Hash;
 use Illuminate\Cache\Repository;
 use Illuminate\Http\Request;
@@ -232,7 +233,7 @@ class APIController extends Controller
     }
 
     public function fetchdetails($id)
-    {   
+    {
         $hotel = DB::table('hotelsdb as h')
             ->leftJoin('usersdb as u', 'h.owner_id', '=', 'u.uid')
             ->select(
@@ -241,13 +242,36 @@ class APIController extends Controller
             )
             ->where('h.id', $id)
             ->first();
-        $reviews = DB::table('reviews')->where('hotel_id', $id)->get();
-        $amenities = DB::table('hotel_amenities')->where('hotel_id', $id)-> get();
- 
+
+        $reviews = DB::table('reviews as r')
+            ->leftJoin('usersdb as u', 'r.uid', '=', 'u.uid')
+            ->select(
+                'r.*',
+                DB::raw("CONCAT(u.first_name, ' ', u.last_name) as user_name"),
+            )
+            ->where('r.hotel_id', $id)
+            ->get();
+
+        // ⭐ ADD THIS: average rating
+        $avgRating = DB::table('reviews')
+            ->where('hotel_id', $id)
+            ->avg('rating');
+
+        // optional: count
+        $ratingCount = DB::table('reviews')
+            ->where('hotel_id', $id)
+            ->count();
+
+        $amenities = DB::table('hotel_amenities')
+            ->where('hotel_id', $id)
+            ->get();
+
         return response()->json([
             'hotel' => $hotel,
             'reviews' => $reviews,
             'amenities' => $amenities,
+            'average_rating' => (float) $avgRating,
+            'rating_count' => $ratingCount
         ]);
     }
     public function myHotels($ownerId)
@@ -266,6 +290,8 @@ class APIController extends Controller
         $hotels = DB::table('bookings')
             ->join('hotelsdb', 'bookings.hotel_id', '=', 'hotelsdb.id')
             ->where('bookings.uid', $uid)
+            ->where('bookings.status', '!=', 'completed')
+            ->where('bookings.status', '!=', 'rated')
             ->select(
                 'bookings.id as booking_id',
                 'bookings.uid',
@@ -289,6 +315,77 @@ class APIController extends Controller
         return response()->json([
             'hotels' => $hotels
         ]);
+    }
+    public function toRate($uid)
+    {
+        $hotels = DB::table('bookings')
+            ->join('hotelsdb', 'bookings.hotel_id', '=', 'hotelsdb.id')
+            ->where('bookings.uid', $uid)
+            ->where('bookings.status', '=', 'completed')
+            ->orWhere('bookings.status', '=', 'rated')
+            ->select(
+                'bookings.id as booking_id',
+                'bookings.uid',
+                'bookings.hotel_id',
+                'bookings.room_type',
+                'bookings.check_in',
+                'bookings.check_out',
+                'bookings.status as booking_status',
+
+                // HOTEL INFO
+                'hotelsdb.hotel_name',
+                'hotelsdb.hotel_address',
+                'hotelsdb.hotel_contact',
+                'hotelsdb.hotel_image_loc',
+                'hotelsdb.status as hotel_type',
+                'hotelsdb.approved',
+                'hotelsdb.created_at as hotel_created_at'
+            )
+            ->get();
+
+        return response()->json([
+            'hotels' => $hotels
+        ]);
+    }
+
+    public function rateHotel(Request $request){
+        $data = $request->all();
+        try{
+            DB::insert(
+                "INSERT INTO reviews (uid, hotel_id, rating, comment) VALUES (?, ?, ? ,?)",
+                [
+                    $data['uid'],
+                    $data['hotelID'],
+                    $data['rating'],
+                    $data['comment']
+                ]
+            );
+
+            // print($data['booking_id']);
+
+            // DB::statement(
+            //     "UPDATE bookings SET status = 'rated' WHERE booking_id = ?",
+            //     [
+            //         $data['booking_id']
+            //     ]
+            // );
+
+            DB::update(
+                "
+                    UPDATE bookings SET status = 'rated' WHERE id = ?
+                ",
+                [
+                    $data['booking_id']
+                ]
+            );
+
+            return response()->json([
+                'success' => true
+            ]);
+        }
+        catch(Exception $e){
+            return response()->json(['success' => false, 'message' => $e]);
+        }
     }
     // ========== [ Compose Email ] ================
     public function sendMail($email, $code)

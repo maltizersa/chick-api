@@ -23,7 +23,7 @@ return new class extends Migration
             room_type VARCHAR(255) NOT NULL,
             check_in DATE NOT NULL,
             check_out DATE NOT NULL,
-            status ENUM('booked', 'on-going', 'completed') NOT NULL DEFAULT 'booked',
+            status ENUM('booked', 'on-going', 'completed', 'rated') NOT NULL DEFAULT 'booked',
             FOREIGN KEY (uid) REFERENCES usersdb(uid),
             FOREIGN KEY (hotel_id) REFERENCES  hotelsdb(id))
         ");
