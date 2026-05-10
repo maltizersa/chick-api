@@ -818,4 +818,73 @@ class APIController extends Controller
             'message' => 'Room deleted successfully'
         ]);
     }
+
+    public function changepass(Request $request){
+        $data = $request->all();
+        
+        $user = DB::table('usersdb')
+            ->where('uid', $data['uid'])
+            ->first();
+
+        if(!$user){
+            return response()->json([
+                "success" => false,
+                "message" => "User not found"
+            ]);
+        }
+
+        if(!Hash::check($data['old_password'], $user->password)){
+            return response()->json([
+                "success" => false,
+                "message" => "Old password incorrect"
+            ]);
+        }
+
+        DB::table('usersdb')
+            ->where('uid', $data['uid'])
+            ->update([
+                'password' => Hash::make($data['new_password'])
+            ]);
+
+        return response()->json([
+            "success" => true,
+            "message" => "Password updated"
+        ]);
+    }
+
+    public function updateProfileImage(Request $request)
+    {
+        $user = DB::table('usersdb')
+            ->where('uid', $request->uid)
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                "success" => false,
+                "message" => "User not found"
+            ]);
+        }
+
+        if ($request->hasFile('profile_image')) {
+            $file = $request->file('profile_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('profiles', $filename, 'public');
+
+            DB::table('usersdb')
+                ->where('uid', $request->uid)
+                ->update([
+                    "profile_picture" => $path
+                ]);
+
+            return response()->json([
+                "success" => true,
+                "image_url" => $path
+            ]);
+        }
+
+        return response()->json([
+            "success" => false,
+            "message" => "No image uploaded"
+        ]);
+    }
 }

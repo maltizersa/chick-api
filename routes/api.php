@@ -29,6 +29,7 @@ Route::post('/bookings', [APIController::class, 'bookHotel']);
 Route::get('/booking/{bookingID}', [APIController::class, 'getBookingDetails']);
 
 Route::post('/addhotel', [APIController::class, 'addHotel']);
+Route::post('/updateprofileimage', [APIController::class, 'updateProfileImage']);
 
 Route::get('/fetchroomtypes/{id}', [APIController::class, 'fetchroomtypes']);
 
@@ -51,4 +52,6 @@ Route::get('/my-book/{uid}', [APIController::class, 'myBookings']);
 Route::get('/to-rate/{uid}', [APIController:: class, 'toRate']);
 
 Route::post('rate-hotel', [APIController::class, 'rateHotel']);
+
+Route::post('/changepass', [APIController::class, 'changepass']);
 
