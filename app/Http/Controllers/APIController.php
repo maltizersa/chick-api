@@ -370,6 +370,8 @@ class APIController extends Controller
                 ]
             );
 
+            
+
             // print($data['booking_id']);
 
             // DB::statement(
