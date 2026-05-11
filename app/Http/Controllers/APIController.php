@@ -214,7 +214,11 @@ class APIController extends Controller
                 COALESCE(
                 (SELECT AVG(rating) FROM reviews WHERE hotel_id = h.id),
                 0
-                ) AS ratings
+                ) AS ratings,
+                COALESCE(
+                (SELECT COUNT(*) FROM reviews WHERE hotel_id = h.id),
+                0
+                ) AS reviews
             FROM hotelsdb h
             LEFT JOIN hotel_amenities ha ON ha.hotel_id = h.id
             LEFT JOIN amenities a ON a.id = ha.amenity_id
