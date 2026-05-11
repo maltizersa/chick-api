@@ -764,7 +764,16 @@ class APIController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        return response()->json($messages);
+        // 🔥 GET OTHER USER INFO
+        $user = DB::table('usersdb')
+            ->select('uid', 'first_name', 'last_name', 'profile_picture')
+            ->where('uid', $otherId)
+            ->first();
+
+        return response()->json([
+            "user" => $user,
+            "messages" => $messages
+        ]);
     }
 
     public function sendMessage(Request $request)
