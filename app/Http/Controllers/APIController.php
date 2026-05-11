@@ -210,7 +210,11 @@ class APIController extends Controller
                 h.created_at,
                 GROUP_CONCAT(a.name) as amenities,
                 (SELECT MIN(price) FROM hotel_rooms WHERE hotel_id = h.id) AS min_price,
-                (SELECT MAX(price) FROM hotel_rooms WHERE hotel_id = h.id) AS max_price
+                (SELECT MAX(price) FROM hotel_rooms WHERE hotel_id = h.id) AS max_price,
+                COALESCE(
+                (SELECT AVG(rating) FROM reviews WHERE hotel_id = h.id),
+                0
+                ) AS ratings
             FROM hotelsdb h
             LEFT JOIN hotel_amenities ha ON ha.hotel_id = h.id
             LEFT JOIN amenities a ON a.id = ha.amenity_id
