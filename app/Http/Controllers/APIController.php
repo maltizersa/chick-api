@@ -357,6 +357,17 @@ class APIController extends Controller
         ]);
     }
 
+      public function addNotification($uid, $title, $message)
+        {
+            DB::table('notifications')->insert([
+                'uid' => $uid,
+                'title' => $title,
+                'message' => $message,
+                'seen' => 0,
+                'created_at' => now()
+            ]);
+        }
+
     public function rateHotel(Request $request){
         $data = $request->all();
         try{
@@ -369,8 +380,24 @@ class APIController extends Controller
                     $data['comment']
                 ]
             );
+            
+
+            $owner = DB::table('hotelsdb')
+            ->where('id', $data['hotelID'])
+            ->select([
+                'owner_id'
+            ])
+            ->first();
+
+            $name = DB::table('usersdb')
+                ->where('uid', $data['uid'])
+                ->select(["first_name", "last_name"])
+                ->first();
+
+            $fullName = $name->first_name . ' ' . $name->last_name;
 
             
+            $this->addNotification($owner, "Hotel Booking", "$fullName added reviews to your hotel. Check it out!!!");
 
             // print($data['booking_id']);
 
