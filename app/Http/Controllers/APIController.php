@@ -19,15 +19,22 @@ class APIController extends Controller
         $data = $request->all();
 
         try{
+            $room_id = DB::table('hotel_rooms')
+            ->where('hotel_id', $data['hotel_id'])
+            ->where('room_name', $data['room_type'])
+            ->select('room_id')
+            ->first();
+
             DB::insert(
-                "INSERT INTO bookings (id, uid, hotel_id, room_type, check_in, check_out) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO bookings (id, uid, hotel_id, room_type, check_in, check_out, room_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [
                     $data['id'],
                     $data['uid'],
                     $data['hotel_id'],
                     $data['room_type'],
                     $data['check_in'],
-                    $data['check_out']
+                    $data['check_out'],
+                    $room_id->room_id
                 ]
             );
             return response()->json(['success' => true, 'message' => 'Booking created successfully.']);
@@ -71,7 +78,7 @@ class APIController extends Controller
             "SELECT 
                 b.*, 
                 h.hotel_name AS hotel_name,
-                (SELECT price FROM hotel_rooms WHERE room_name = b.room_type) AS price
+                (SELECT price FROM hotel_rooms WHERE room_id = b.room_id) AS price
                 FROM bookings b
                 JOIN hotelsdb h ON b.hotel_id = h.id
                 WHERE b.id = ?

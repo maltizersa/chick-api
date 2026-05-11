@@ -21,6 +21,7 @@ return new class extends Migration
             uid INT NOT NULL,
             hotel_id INT NOT NULL,
             room_type VARCHAR(255) NOT NULL,
+            room_id INT NOT NULL,
             check_in DATE NOT NULL,
             check_out DATE NOT NULL,
             status ENUM('booked', 'on-going', 'completed', 'rated') NOT NULL DEFAULT 'booked',
