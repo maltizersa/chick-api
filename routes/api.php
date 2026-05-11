@@ -57,3 +57,7 @@ Route::post('/changepass', [APIController::class, 'changepass']);
 
 Route::post('/update-account',[APIController::class, 'updateaccount']);
 
+Route::get('/notifcount/{uid}', [APIController::class, 'notifcount']);
+Route::get('/getnotif/{uid}', [APIController::class, 'getnotif']);
+Route::post('/createnotif', [APIController::class, 'createNotification']);
+

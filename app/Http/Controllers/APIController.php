@@ -475,7 +475,7 @@ class APIController extends Controller
                 $request->longitude,
                 $request->latitude,
                 $ownerId,
-                1,
+                0,
                 $status,
                 now(),
                 $pdfPath
@@ -913,5 +913,56 @@ class APIController extends Controller
         {
             return response()->json(["false" => true, "message" => "Personal Information update failed."]);
         }
+    }
+
+    public function notifcount($uid){
+        $notifcount = DB::table("notifications")
+        ->where("uid", $uid)
+        ->where("seen", 0)
+        ->count();
+
+        return response()->json(["count" => $notifcount]);
+    }
+
+    public function getnotif($uid){
+        $notifcount = DB::table("notifications")
+        ->where("uid", $uid)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        $this->markSeen($uid);
+
+        return response()->json(["notifications" => $notifcount]);
+    }
+
+    public function markSeen($uid){
+        DB::table("notifications")
+        ->where("uid", $uid)
+        ->where("seen", 0)
+        ->update([
+            "seen" => 1
+        ]);
+    }
+
+    public function createNotification(Request $request)
+    {
+        $request->validate([
+            'uid' => 'required|integer',
+            'title' => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        $notif = DB::table('notifications')->insert([
+            'uid' => $request->uid,
+            'title' => $request->title,
+            'message' => $request->message,
+            'seen' => 0,
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification created successfully'
+        ]);
     }
 }

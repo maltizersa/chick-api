@@ -11,10 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        DB::statement(
+            "CREATE TABLE notifications(
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                uid INT NOT NULL,
+                title TEXT NOT NULL,
+                message TEXT NOT NULL,
+                seen TINYINT(1) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (uid) REFERENCES usersdb(uid)
+            )"
+        );
     }
 
     /**
