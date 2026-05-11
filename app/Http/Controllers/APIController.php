@@ -887,4 +887,31 @@ class APIController extends Controller
             "message" => "No image uploaded"
         ]);
     }
+
+    public function updateaccount(Request $request)
+    {
+        $data = $request->all();
+
+        $users = DB::table("usersdb")
+        ->where('uid', $data['uid'])
+        ->update(
+            [
+                'first_name' => $data['first_name'],
+                'middle_name' => $data['middle_name'] ?? null,
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone_number'=> $data['phone_number'],
+                'gcash_number' => $data['gcash_number'] ?? null
+            ]
+        );
+
+        if($users)
+        {
+            return response()->json(["sucess" => true, "message" => "Personal Information updated."]);
+        }
+        else
+        {
+            return response()->json(["false" => true, "message" => "Personal Information update failed."]);
+        }
+    }
 }

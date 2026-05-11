@@ -55,3 +55,5 @@ Route::post('rate-hotel', [APIController::class, 'rateHotel']);
 
 Route::post('/changepass', [APIController::class, 'changepass']);
 
+Route::post('/update-account',[APIController::class, 'updateaccount']);
+
