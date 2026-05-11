@@ -723,7 +723,7 @@ class APIController extends Controller
                 u.uid,
                 u.first_name,
                 u.last_name,
-                u.profile_picture
+                u.profile_picture,
                 m.message AS last_message,
                 m.created_at,
                 m.sender_id,
