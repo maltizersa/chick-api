@@ -256,6 +256,7 @@ class APIController extends Controller
             ->select(
                 'r.*',
                 DB::raw("CONCAT(u.first_name, ' ', u.last_name) as user_name"),
+                'u.profile_picture'
             )
             ->where('r.hotel_id', $id)
             ->get();
