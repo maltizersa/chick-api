@@ -19,7 +19,7 @@ return new class extends Migration
             price INT NOT NULL,
             image_path VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(hotel_id) REFERENCES hotelsdb(id)
+            FOREIGN KEY(hotel_id) REFERENCES hotelsdb(id) ON DELETE CASCADE
         )"
        );
 
