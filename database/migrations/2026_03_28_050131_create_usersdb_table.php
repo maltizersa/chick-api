@@ -27,8 +27,8 @@ return new class extends Migration
                 last_name VARCHAR(255) NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 phone_number VARCHAR(11) NOT NULL,
-                profile_picture VARCHAR(255) NULL),
-                gcash_number VARCHAR(255) NULL
+                profile_picture VARCHAR(255) NULL,
+                gcash_number VARCHAR(255) NULL)
             "
         );
     }

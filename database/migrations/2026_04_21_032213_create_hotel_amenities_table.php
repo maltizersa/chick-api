@@ -21,21 +21,21 @@ return new class extends Migration
             )"
         );
 
-         DB::insert(
-            "
-                INSERT INTO hotel_amenities (
-                   hotel_id,
-                   amenity_id
-                ) VALUES (
-                    (SELECT id FROM hotelsdb LIMIT 1),
-                    2
-                ),
-                (
-                    (SELECT id FROM hotelsdb LIMIT 1),
-                    3
-                )
-            "
-        );
+        //  DB::insert(
+        //     "
+        //         INSERT INTO hotel_amenities (
+        //            hotel_id,
+        //            amenity_id
+        //         ) VALUES (
+        //             (SELECT id FROM hotelsdb LIMIT 1),
+        //             2
+        //         ),
+        //         (
+        //             (SELECT id FROM hotelsdb LIMIT 1),
+        //             3
+        //         )
+        //     "
+        // );
     }
 
     /**
