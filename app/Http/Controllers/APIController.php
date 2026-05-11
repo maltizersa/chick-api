@@ -397,7 +397,7 @@ class APIController extends Controller
             $fullName = $name->first_name . ' ' . $name->last_name;
 
             
-            $this->addNotification($owner, "Hotel Booking", "$fullName added reviews to your hotel. Check it out!!!");
+            $this->addNotification($owner->owner_id, "Hotel Booking", "$fullName added reviews to your hotel. Check it out!!!");
 
             // print($data['booking_id']);
 
