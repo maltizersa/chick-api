@@ -867,7 +867,9 @@ class APIController extends Controller
 
         if ($request->hasFile('profile_image')) {
             $file = $request->file('profile_image');
-            $filename = time() . '_' . $request->uid;
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '_' . $request->uid . '.' . $extension;
+
             $path = $file->storeAs('profiles', $filename, 'public');
 
             DB::table('usersdb')
